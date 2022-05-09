@@ -14,7 +14,7 @@ public class Transaction {
     private LocalDate created_at;
     private LocalDate updated_at;
 
-    public Transaction(Category category, Account account, String description, double value) {
+    public Transaction(Account account, Category category, String description, double value) {
         this.id = UUID.randomUUID();
         this.account_id = account.getId();
         this.category_id = category.getId();
@@ -87,5 +87,19 @@ public class Transaction {
 
     public void setUpdated_at(LocalDate updated_at) {
         this.updated_at = updated_at;
+    }
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "id=" + id +
+                ", account_id=" + account_id +
+                ", category_id=" + category_id +
+                ", description='" + description + '\'' +
+                ", value=" + value +
+                ", canceled=" + canceled +
+                ", created_at=" + created_at +
+                ", updated_at=" + updated_at +
+                '}';
     }
 }
