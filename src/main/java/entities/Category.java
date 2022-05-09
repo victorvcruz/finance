@@ -58,4 +58,15 @@ public class Category {
     public void setUpdated_at(LocalDate updated_at) {
         this.updated_at = updated_at;
     }
+
+    @Override
+    public String toString() {
+        return "Category{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", account_id=" + account_id +
+                ", created_at=" + created_at +
+                ", updated_at=" + updated_at +
+                '}';
+    }
 }

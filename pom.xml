@@ -25,4 +25,13 @@
         <maven.compiler.target>18</maven.compiler.target>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.3.5</version>
+        </dependency>
+
+    </dependencies>
+
 </project>

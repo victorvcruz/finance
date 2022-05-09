@@ -68,4 +68,16 @@ public class Account {
     public void setUpdate_at(LocalDate update_at) {
         this.update_at = update_at;
     }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", balance=" + balance +
+                ", created_at=" + created_at +
+                ", update_at=" + update_at +
+                '}';
+    }
 }
