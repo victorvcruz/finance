@@ -1,5 +1,7 @@
 package entities;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -19,6 +21,7 @@ public class Account {
         this.balance = 0;
         this.created_at = LocalDate.now();
         this.update_at = LocalDate.now();
+
     }
 
     public UUID getId() {
@@ -46,6 +49,7 @@ public class Account {
     }
 
     public double getBalance() {
+
         return balance;
     }
 
