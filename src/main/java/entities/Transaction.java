@@ -10,6 +10,7 @@ public class Transaction {
     private UUID category_id;
     private String description;
     private double value;
+    private LocalDate date;
     private boolean canceled;
     private LocalDate created_at;
     private LocalDate updated_at;
@@ -20,6 +21,7 @@ public class Transaction {
         this.category_id = category.getId();
         this.description = description;
         this.value = value;
+        this.date = LocalDate.now();
         this.canceled = false;
         this.created_at = LocalDate.now();
         this.updated_at = LocalDate.now();
@@ -63,6 +65,14 @@ public class Transaction {
 
     public void setValue(double value) {
         this.value = value;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 
     public boolean isCanceled() {
