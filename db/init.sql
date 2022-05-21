@@ -19,7 +19,7 @@ CREATE TABLE transaction (
 
 CREATE TABLE category (
 	id VARCHAR PRIMARY KEY,
-	name VARCHAR UNIQUE NOT NULL,
+	name VARCHAR NOT NULL,
 	account_id VARCHAR NOT NULL,
 	created_at TIMESTAMP NOT NULL,
         updated_at TIMESTAMP NOT NULL
