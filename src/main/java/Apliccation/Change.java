@@ -1,3 +1,5 @@
+package Apliccation;
+
 import repository_entities.AccountRepository;
 import repository_entities.CategoryRepository;
 import repository_entities.TransactionRepository;

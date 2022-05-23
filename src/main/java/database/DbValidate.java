@@ -18,16 +18,21 @@ public class DbValidate {
         this.category_repository = category_repository;
     }
 
-    public boolean accountValidate(String account_id) throws SQLException{
+    public boolean accountIdValidate(String account_id) throws SQLException{
         return account_repository.accountIdValidate(account_id);
     }
+
+    public boolean accountNameValidate(String account_name) throws SQLException {
+        return account_repository.SelectAccountName(account_name).next();
+    }
+
 
     public boolean categoryValidate(String category_name, String account_id) throws SQLException{
         return category_repository.categoryNameValidate(category_name, account_id);
     }
 
-    public Account createAccountValidate(String account_id) throws SQLException {
-        ResultSet result = account_repository.SelectAccountId(account_id);
+    public Account createAccountValidate(String account_name) throws SQLException {
+        ResultSet result = account_repository.SelectAccountName(account_name);
         Account account = null;
         if (result.next()) {
             account = new Account(result.getString("username"), result.getString("password"));
@@ -44,6 +49,10 @@ public class DbValidate {
             category = new Category(result.getString("name"), account);
         }
         return category;
+    }
+
+    public boolean authenticateAccount(String category_name, String account_password) throws SQLException {
+        return account_repository.selectAuthenticateAccount(category_name, account_password);
     }
 
 
