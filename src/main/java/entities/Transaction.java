@@ -10,18 +10,18 @@ public class Transaction {
     private UUID category_id;
     private String description;
     private double value;
-    private LocalDate date;
+    private String date;
     private boolean canceled;
     private LocalDate created_at;
     private LocalDate updated_at;
 
-    public Transaction(Account account, Category category, String description, double value) {
+    public Transaction(Account account, Category category, String description, String date, double value) {
         this.id = UUID.randomUUID();
         this.account_id = account.getId();
         this.category_id = category.getId();
         this.description = description;
         this.value = value;
-        this.date = LocalDate.now();
+        this.date = date;
         this.canceled = false;
         this.created_at = LocalDate.now();
         this.updated_at = LocalDate.now();
@@ -67,11 +67,11 @@ public class Transaction {
         this.value = value;
     }
 
-    public LocalDate getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
