@@ -1,6 +1,6 @@
 package database.repository;
 
-import api.request.TransactionsChangeRequest;
+import api.Convert;
 import entities.Account;
 import entities.Category;
 import entities.Transaction;
@@ -8,6 +8,7 @@ import entities.Transaction;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import database.PostgreClient;
@@ -72,6 +73,28 @@ public class TransactionRepository {
 
         return postgresql.runSqlToSelect(sql);
     }
+
+    public ResultSet findTransactionByAccountId(String account_id) throws SQLException {
+        String sql = "SELECT id, account_id, category_id, description, value, date, canceled, created_at, updated_at " +
+                "FROM transaction " +
+                "WHERE account_id = '" + account_id + "' " +
+                "AND canceled = false";
+
+        return postgresql.runSqlToSelect(sql);
+    }
+
+    public ArrayList transactionsOfAccountById(String account_id) throws SQLException {
+        ArrayList<String> transactionList = new ArrayList<>();
+        ResultSet result = this.findTransactionByAccountId(account_id);
+
+        while(result.next()){
+            transactionList.add(Convert.json().toJson(this.findById(result.getString("id"))));
+
+        }
+
+        return transactionList;
+    }
+
 
     public boolean existsTransactionById(String transaction_id) throws SQLException {
         return this.findTransactionById(transaction_id).next();

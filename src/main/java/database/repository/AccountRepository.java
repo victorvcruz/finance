@@ -86,6 +86,16 @@ public class AccountRepository {
         return result.getDouble("sum");
     }
 
+    public int countTransactionByAccountId(String account_id) throws SQLException {
+        String sql = "SELECT count(id) " +
+                "FROM transaction " +
+                "WHERE account_id = '" + account_id + "'";
+        ResultSet result = postgresql.runSqlToSelect(sql);
+        result.next();
+        return result.getInt("count");
+
+    }
+
     public boolean authenticateAccount(String account_id, String account_password) throws SQLException {
         String sql = "SELECT id, username, password, created_at, updated_at " +
                 "FROM account " +
