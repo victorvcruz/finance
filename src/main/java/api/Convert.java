@@ -10,6 +10,7 @@ public class Convert {
         return new GsonBuilder()
                 .setPrettyPrinting()
                 .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+                .setDateFormat("yyyy-MM-dd")
                 .create();
     }
 }

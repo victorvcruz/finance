@@ -30,15 +30,13 @@ public class ApiApliccation {
     private Change change;
     private View view;
     private AccountRepository account_repository;
-    private CategoryRepository category_repository;
     private TransactionRepository transaction_repository;
 
-    public ApiApliccation(Create create, Change change, View view, AccountRepository account_repository, CategoryRepository category_repository, TransactionRepository transaction_repository) {
+    public ApiApliccation(Create create, Change change, View view, AccountRepository account_repository, TransactionRepository transaction_repository) {
         this.create = create;
         this.change = change;
         this.view = view;
         this.account_repository = account_repository;
-        this.category_repository = category_repository;
         this.transaction_repository = transaction_repository;
     }
 
@@ -49,7 +47,7 @@ public class ApiApliccation {
             response.type("application/json");
             AccountCreateRequest account_request = new Gson().fromJson(request.body(), AccountCreateRequest.class);
 
-            if(!account_repository.existsAccountByUsername(account_request.getUsername())) {
+            if(account_repository.existsAccountByUsername(account_request.getUsername())) {
                 response.status(HTTP_CONFLICT);
                 return Convert.json().toJson(new ErrorConflict());
             }
@@ -65,7 +63,7 @@ public class ApiApliccation {
             response.type("application/json");
             TransactionsCreateRequest transaction_request = new Gson().fromJson(request.body(), TransactionsCreateRequest.class);
 
-            if(account_repository.authenticateAccount(account_id, password)){
+            if(!account_repository.authenticateAccount(account_id, password)){
                 response.status(HTTP_UNAUTHORIZED);
                 return Convert.json().toJson(new ErrorUnauthorized());
             }
@@ -78,7 +76,7 @@ public class ApiApliccation {
             String account_id = request.params(":id");
             String password = request.headers("Password");
 
-            if(account_repository.authenticateAccount(account_id, password)){
+            if(!account_repository.authenticateAccount(account_id, password)){
                 response.status(HTTP_UNAUTHORIZED);
                 return Convert.json().toJson(new ErrorUnauthorized());
             }
@@ -92,7 +90,7 @@ public class ApiApliccation {
             String account_id = request.params(":id");
             String password = request.headers("Password");
 
-            if(account_repository.authenticateAccount(account_id, password)){
+            if(!account_repository.authenticateAccount(account_id, password)){
                 response.status(HTTP_UNAUTHORIZED);
                 return Convert.json().toJson(new ErrorUnauthorized());
             }

@@ -1,6 +1,4 @@
 import api.ApiApliccation;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import controller.Change;
 import controller.Create;
 import controller.View;
@@ -8,11 +6,8 @@ import database.PostgreClient;
 import database.repository.AccountRepository;
 import database.repository.CategoryRepository;
 import database.repository.TransactionRepository;
-
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class Main {
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
@@ -27,7 +22,7 @@ public class Main {
         Change change = new Change(account_repository, category_repository, transaction_repository);
         View view = new View(account_repository, transaction_repository);
 
-        ApiApliccation api = new ApiApliccation(create, change, view, account_repository, category_repository, transaction_repository);
+        ApiApliccation api = new ApiApliccation(create, change, view, account_repository, transaction_repository);
 
         api.run();
     }
