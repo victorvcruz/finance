@@ -10,7 +10,7 @@ import java.util.UUID;
 public class AccountRepository {
     public PostgreClient postgresql;
 
-    public AccountRepository(PostgreClient postgresql) throws SQLException, ClassNotFoundException {
+    public AccountRepository(PostgreClient postgresql) {
         this.postgresql = postgresql;
     }
 

@@ -12,13 +12,14 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import database.PostgreClient;
+import entities.dto.TransactionDTO;
 
 public class TransactionRepository {
     public PostgreClient postgresql;
     public AccountRepository account_repository;
     public CategoryRepository category_repository;
 
-    public TransactionRepository(PostgreClient postgresql, AccountRepository account_repository, CategoryRepository category_repository) throws SQLException, ClassNotFoundException {
+    public TransactionRepository(PostgreClient postgresql, AccountRepository account_repository, CategoryRepository category_repository) {
         this.postgresql = postgresql;
         this.account_repository = account_repository;
         this.category_repository = category_repository;
@@ -29,7 +30,7 @@ public class TransactionRepository {
         String sql =
                 """
                 INSERT INTO transaction(id, account_id, category_id, description, value, date, canceled, created_at, updated_at)
-                VALUES('%s', '%s', '%s', '%s', %s, to_timestamp('%s', 'YYYY-MM-DD'), %s, '%s', '%s'); 
+                VALUES('%s', '%s', '%s', '%s', %s, to_timestamp('%s', 'YYYY-MM-DD'), %s, '%s', '%s');
                         """;
         String sqlFormat = String.format(sql, transaction.getId(), transaction.getAccount_id(),
                 transaction.getCategory_id(), transaction.getDescription(), transaction.getValue(),
@@ -74,6 +75,20 @@ public class TransactionRepository {
         return postgresql.runSqlToSelect(sql);
     }
 
+    public ResultSet findTransactionDTOById(String transaction_id) throws SQLException {
+        String sql = """
+                SELECT transaction.id, category.name, transaction.description, transaction.value, transaction.date, transaction.created_at, transaction.updated_at
+                FROM transaction
+                INNER JOIN category ON category.id = category_id
+                WHERE transaction.id = '%s'
+                AND canceled = false
+                """;
+
+        String sqlFormat = String.format(sql, transaction_id);
+
+        return postgresql.runSqlToSelect(sqlFormat);
+    }
+
     public ResultSet findTransactionByAccountId(String account_id) throws SQLException {
         String sql = "SELECT id, account_id, category_id, description, value, date, canceled, created_at, updated_at " +
                 "FROM transaction " +
@@ -88,7 +103,7 @@ public class TransactionRepository {
         ResultSet result = this.findTransactionByAccountId(account_id);
 
         while(result.next()){
-            transactionList.add(Convert.json().toJson(this.findById(result.getString("id"))));
+            transactionList.add(Convert.json().toJson(this.findDTOById(result.getString("id"))));
 
         }
 
@@ -113,6 +128,15 @@ public class TransactionRepository {
         }
 
         return transaction;
+    }
+
+    public TransactionDTO findDTOById(String transaction_id) throws SQLException {
+        ResultSet result = this.findTransactionDTOById(transaction_id);
+        TransactionDTO transaction = null;
+        if(result.next()){
+            transaction = new TransactionDTO(result.getString("id"), result.getString("name"), result.getString("description"), result.getDouble("value"), result.getTimestamp("date"), result.getTimestamp("created_at"), result.getTimestamp("updated_at"));
+        }
+        return  transaction;
     }
 
 }

@@ -16,7 +16,7 @@ public class Create {
     public CategoryRepository category_repository;
     public TransactionRepository transaction_repository;
 
-    public Create(AccountRepository account_repository, CategoryRepository category_repository, TransactionRepository transaction_repository) throws SQLException, ClassNotFoundException {
+    public Create(AccountRepository account_repository, CategoryRepository category_repository, TransactionRepository transaction_repository) {
         this.account_repository = account_repository;
         this.category_repository = category_repository;
         this.transaction_repository = transaction_repository;
@@ -31,7 +31,7 @@ public class Create {
     }
 
     public Transaction createIncome(String account_id, String password, String description, String category_name, String date, double value) throws SQLException {
-        if(account_repository.authenticateAccount(account_id, password)){
+        if(!account_repository.authenticateAccount(account_id, password)){
             return null;
         }
 

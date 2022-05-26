@@ -11,7 +11,7 @@ public class Change {
     public CategoryRepository category_repository;
     public TransactionRepository transaction_repository;
 
-    public Change(AccountRepository account_repository, CategoryRepository category_repository, TransactionRepository transaction_repository) throws SQLException, ClassNotFoundException {
+    public Change(AccountRepository account_repository, CategoryRepository category_repository, TransactionRepository transaction_repository) {
         this.account_repository = account_repository;
         this.category_repository = category_repository;
         this.transaction_repository = transaction_repository;
