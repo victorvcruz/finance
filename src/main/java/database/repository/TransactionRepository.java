@@ -90,12 +90,64 @@ public class TransactionRepository {
     }
 
     public ResultSet findTransactionByAccountId(String account_id) throws SQLException {
-        String sql = "SELECT id, account_id, category_id, description, value, date, canceled, created_at, updated_at " +
-                "FROM transaction " +
-                "WHERE account_id = '" + account_id + "' " +
-                "AND canceled = false";
+        String sql = """
+                SELECT id, account_id, category_id, description, value, date, canceled, created_at, updated_at
+                FROM transaction
+                where account_id = '%s'
+                AND canceled = false
+                """;
 
-        return postgresql.runSqlToSelect(sql);
+        String sqlFormat = String.format(sql, account_id);
+
+        return postgresql.runSqlToSelect(sqlFormat);
+    }
+
+    public ResultSet findTransactionByAccountIdFilteredByCategoryAndDate(String account_id, String category_name, String date_start, String date_end) throws SQLException {
+
+        String sql = """
+                SELECT transaction.id, category.name, transaction.description, transaction.value, transaction.date, transaction.created_at, transaction.updated_at
+                FROM transaction
+                INNER JOIN category ON category.id = category_id
+                WHERE transaction.account_id = '%s'
+                AND category.name = '%s'
+                AND canceled = false
+                AND date >= '%s'
+                AND date <= '%s'
+                """;
+
+        String sqlFormat = String.format(sql, account_id, category_name, date_start.replace("/", "-"), date_end.replace("/", "-"));
+
+        return postgresql.runSqlToSelect(sqlFormat);
+    }
+
+    public ResultSet findTransactionByAccountIdFilteredByCategory(String account_id, String category_name) throws SQLException {
+        String sql = """
+                SELECT transaction.id, category.name, transaction.description, transaction.value, transaction.date, transaction.created_at, transaction.updated_at
+                FROM transaction
+                INNER JOIN category ON category.id = category_id
+                WHERE transaction.account_id = '%s'
+                AND category.name = '%s'
+                AND canceled = false
+                """;
+
+        String sqlFormat = String.format(sql, account_id, category_name);
+
+        return postgresql.runSqlToSelect(sqlFormat);
+    }
+
+    public ResultSet findTransactionByAccountIdFilteredByDate(String account_id, String date_start, String date_end) throws SQLException {
+        String sql = """
+                SELECT id, account_id, category_id, description, value, date, canceled, created_at, updated_at
+                FROM transaction
+                where account_id = '%s'
+                AND canceled = false
+                AND date >= '%s'
+                AND date <= '%s'
+                """;
+
+        String sqlFormat = String.format(sql, account_id, date_start.replace("/", "-"), date_end.replace("/", "-"));
+
+        return postgresql.runSqlToSelect(sqlFormat);
     }
 
     public ArrayList transactionsOfAccountById(String account_id) throws SQLException {
@@ -109,6 +161,44 @@ public class TransactionRepository {
 
         return transactionList;
     }
+
+    public ArrayList transactionsOfAccountByIdFilteredByCategoryAndDate(String account_id, String category_name, String date_start, String date_end) throws SQLException {
+        ArrayList<String> transactionList = new ArrayList<>();
+        ResultSet result = this.findTransactionByAccountIdFilteredByCategoryAndDate(account_id, category_name, date_start, date_end);
+
+        while(result.next()){
+            transactionList.add(Convert.json().toJson(this.findDTOById(result.getString("id"))));
+
+        }
+
+        return transactionList;
+    }
+
+    public ArrayList transactionsOfAccountByIdFilteredByCategory(String account_id, String category_name) throws SQLException {
+        ArrayList<String> transactionList = new ArrayList<>();
+        ResultSet result = this.findTransactionByAccountIdFilteredByCategory(account_id, category_name);
+
+        while(result.next()){
+            transactionList.add(Convert.json().toJson(this.findDTOById(result.getString("id"))));
+
+        }
+
+        return transactionList;
+    }
+
+    public ArrayList transactionsOfAccountByIdFilteredByDate(String account_id, String date_start, String date_end) throws SQLException {
+        ArrayList<String> transactionList = new ArrayList<>();
+        ResultSet result = this.findTransactionByAccountIdFilteredByDate(account_id, date_start, date_end);
+
+        while(result.next()){
+            transactionList.add(Convert.json().toJson(this.findDTOById(result.getString("id"))));
+
+        }
+
+        return transactionList;
+    }
+
+
 
 
     public boolean existsTransactionById(String transaction_id) throws SQLException {
