@@ -1,9 +1,6 @@
 package api;
 
-import api.request.AccountCreateRequest;
-import api.request.TransactionsCancelRequest;
-import api.request.TransactionsChangeRequest;
-import api.request.TransactionsCreateRequest;
+import api.request.*;
 import api.response.ErrorConflict;
 import api.response.ErrorNotFound;
 import controller.Change;
@@ -86,7 +83,7 @@ public class ApiApliccation {
             return Convert.json().toJson(account);
         });
 
-        get("/transactions/:id", (request, response) -> {
+        get("/accounts/:id/transactions", (request, response) -> {
             String account_id = request.params(":id");
             String password = request.headers("Password");
 
@@ -94,6 +91,23 @@ public class ApiApliccation {
                 response.status(HTTP_UNAUTHORIZED);
                 return Convert.json().toJson(new ErrorUnauthorized());
             }
+
+            response.type("application/json");
+            TransactionsGetRequest transaction_request = new Gson().fromJson(request.body(), TransactionsGetRequest.class);
+            System.out.println(transaction_request.getCategory());
+            if(transaction_request.getDate_start() != null & transaction_request.getDate_end() != null & transaction_request.getCategory() != null){
+                return view.viewTransactionsOfAccountByIdFilteredByCategoryAndDate(account_id, transaction_request.getCategory(),
+                        transaction_request.getDate_start(), transaction_request.getDate_end());
+            }
+
+            if(transaction_request.getDate_start() != null & transaction_request.getDate_end() != null){
+                return view.viewTransactionsOfAccountByFilteredByDate(account_id, transaction_request.getDate_start(), transaction_request.getDate_end());
+            }
+
+            if(transaction_request.getCategory() != null){
+                return view.viewTransactionsOfAccountByIdFilteredByCategory(account_id, transaction_request.getCategory());
+            }
+
 
             return view.viewTransactionsOfAccountById(account_id);
         });

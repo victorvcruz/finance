@@ -1,11 +1,7 @@
 package entities.dto;
 
-import entities.Account;
-import entities.Category;
-
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.util.UUID;
+
 
 public class TransactionDTO {
 
