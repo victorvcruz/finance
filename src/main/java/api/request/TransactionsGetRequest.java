@@ -5,6 +5,8 @@ public class TransactionsGetRequest {
     private String date_end;
     private String category;
 
+    private String type;
+
     public String getDate_start() {
         return date_start;
     }
@@ -27,5 +29,9 @@ public class TransactionsGetRequest {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getType() {
+        return type;
     }
 }

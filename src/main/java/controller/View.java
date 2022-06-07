@@ -35,4 +35,10 @@ public class View {
     public ArrayList viewTransactionsOfAccountByFilteredByDate(String account_id, String date_start, String date_end) throws SQLException {
         return transaction_repository.transactionsOfAccountByIdFilteredByDate(account_id, date_start, date_end);
     }
+
+    public ArrayList viewTransactionsOfAccountByFilteredByTypeAndOther(String account_id, String type, String category,String date_start, String date_end) throws SQLException {
+        return transaction_repository.transactionsOfAccountByIdFilteredByTypeAndOther(account_id, type, category, date_start, date_end);
+    }
+
+
 }

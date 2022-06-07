@@ -150,6 +150,52 @@ public class TransactionRepository {
         return postgresql.runSqlToSelect(sqlFormat);
     }
 
+    public ResultSet findTransactionByAccountIdFilteredByTypeAndOthers(String account_id, String type, String category,String date_start, String date_end) throws SQLException {
+        String type_query = "";
+        String category_query_formated = "";
+        String date_start_query_formated= "";
+        String date_end_query_formated = "";
+
+        System.out.println(type);
+        if(type.equals("expenses")){
+            type_query = "AND value < 0";
+        } else{
+            type_query = "AND value > 0";
+        }
+
+        if(category != ""){
+            String category_query = "AND category.name = '%s'";
+            category_query_formated = String.format(category_query, category);
+        }
+
+        if(date_start != "" && date_end != ""){
+            String date_start_query = "AND date >= '%s'" ;
+            String date_end_query = "AND date <= '%s'";
+
+            date_start_query_formated = String.format(date_start_query, date_start.replace("/", "-"));
+            date_end_query_formated = String.format(date_end_query, date_end.replace("/", "-"));
+
+
+        }
+
+
+        String sql = """
+                SELECT transaction.id, category.name, transaction.description, transaction.value, transaction.date, transaction.created_at, transaction.updated_at
+                FROM transaction
+                INNER JOIN category ON category.id = category_id
+                WHERE transaction.account_id = '%s'
+                AND canceled = false
+                %s
+                %s
+                %s
+                %s
+                """;
+
+        String sqlFormat = String.format(sql, account_id, type_query, category_query_formated, date_start_query_formated, date_end_query_formated);
+
+        return postgresql.runSqlToSelect(sqlFormat);
+    }
+
     public ArrayList transactionsOfAccountById(String account_id) throws SQLException {
         ArrayList<String> transactionList = new ArrayList<>();
         ResultSet result = this.findTransactionByAccountId(account_id);
@@ -189,6 +235,18 @@ public class TransactionRepository {
     public ArrayList transactionsOfAccountByIdFilteredByDate(String account_id, String date_start, String date_end) throws SQLException {
         ArrayList<String> transactionList = new ArrayList<>();
         ResultSet result = this.findTransactionByAccountIdFilteredByDate(account_id, date_start, date_end);
+
+        while(result.next()){
+            transactionList.add(Convert.json().toJson(this.findDTOById(result.getString("id"))));
+
+        }
+
+        return transactionList;
+    }
+
+    public ArrayList transactionsOfAccountByIdFilteredByTypeAndOther(String account_id, String type, String category,String date_start, String date_end) throws SQLException {
+        ArrayList<String> transactionList = new ArrayList<>();
+        ResultSet result = this.findTransactionByAccountIdFilteredByTypeAndOthers(account_id, type, category, date_start, date_end);
 
         while(result.next()){
             transactionList.add(Convert.json().toJson(this.findDTOById(result.getString("id"))));

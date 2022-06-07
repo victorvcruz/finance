@@ -95,6 +95,27 @@ public class ApiApliccation {
             response.type("application/json");
             TransactionsGetRequest transaction_request = new Gson().fromJson(request.body(), TransactionsGetRequest.class);
             System.out.println(transaction_request.getCategory());
+
+            if(transaction_request.getType() != null){
+                if(transaction_request.getDate_start() != null & transaction_request.getDate_end() != null & transaction_request.getCategory() != null){
+                    return view.viewTransactionsOfAccountByFilteredByTypeAndOther(account_id, transaction_request.getType(), transaction_request.getCategory(),
+                            transaction_request.getDate_start(), transaction_request.getDate_end());
+                }
+
+                if(transaction_request.getDate_start() != null & transaction_request.getDate_end() != null){
+                    return view.viewTransactionsOfAccountByFilteredByTypeAndOther(account_id, transaction_request.getType(), "",
+                            transaction_request.getDate_start(), transaction_request.getDate_end());
+                }
+
+                if(transaction_request.getCategory() != null){
+                    return view.viewTransactionsOfAccountByFilteredByTypeAndOther(account_id, transaction_request.getType(), transaction_request.getCategory(),
+                            "", "");
+                }
+
+                return view.viewTransactionsOfAccountByFilteredByTypeAndOther(account_id, transaction_request.getType(), "",
+                        "", "");
+            }
+
             if(transaction_request.getDate_start() != null & transaction_request.getDate_end() != null & transaction_request.getCategory() != null){
                 return view.viewTransactionsOfAccountByIdFilteredByCategoryAndDate(account_id, transaction_request.getCategory(),
                         transaction_request.getDate_start(), transaction_request.getDate_end());
@@ -107,6 +128,8 @@ public class ApiApliccation {
             if(transaction_request.getCategory() != null){
                 return view.viewTransactionsOfAccountByIdFilteredByCategory(account_id, transaction_request.getCategory());
             }
+
+
 
 
             return view.viewTransactionsOfAccountById(account_id);
