@@ -20,23 +20,23 @@ public class View {
         return account_repository.getAccountBalance(account_id);
     }
 
-    public ArrayList viewTransactionsOfAccountById(String account_id) throws SQLException {
+    public ArrayList transactionsOfAccountById(String account_id) throws SQLException {
         return transaction_repository.transactionsOfAccountById(account_id);
     }
 
-    public ArrayList viewTransactionsOfAccountByIdFilteredByCategoryAndDate(String account_id, String category_name, String date_start, String date_end) throws SQLException {
+    public ArrayList transactionsOfAccountByIdFilteredByCategoryAndDate(String account_id, String category_name, String date_start, String date_end) throws SQLException {
         return transaction_repository.transactionsOfAccountByIdFilteredByCategoryAndDate(account_id, category_name, date_start, date_end);
     }
 
-    public ArrayList viewTransactionsOfAccountByIdFilteredByCategory(String account_id, String category_name) throws SQLException {
+    public ArrayList transactionsOfAccountByIdFilteredByCategory(String account_id, String category_name) throws SQLException {
         return transaction_repository.transactionsOfAccountByIdFilteredByCategory(account_id, category_name);
     }
 
-    public ArrayList viewTransactionsOfAccountByFilteredByDate(String account_id, String date_start, String date_end) throws SQLException {
+    public ArrayList transactionsOfAccountByFilteredByDate(String account_id, String date_start, String date_end) throws SQLException {
         return transaction_repository.transactionsOfAccountByIdFilteredByDate(account_id, date_start, date_end);
     }
 
-    public ArrayList viewTransactionsOfAccountByFilteredByTypeAndOther(String account_id, String type, String category,String date_start, String date_end) throws SQLException {
+    public ArrayList transactionsOfAccountByFilteredByTypeAndOther(String account_id, String type, String category, String date_start, String date_end) throws SQLException {
         return transaction_repository.transactionsOfAccountByIdFilteredByTypeAndOther(account_id, type, category, date_start, date_end);
     }
 

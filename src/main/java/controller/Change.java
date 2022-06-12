@@ -21,15 +21,15 @@ public class Change {
         transaction_repository.updateCancelTransaction(transaction_id, bool);
     }
 
-    public void changeTransaction(String transaction_id, String description, String date, double value) throws SQLException {
+    public void transaction(String transaction_id, String description, String date, double value) throws SQLException {
         transaction_repository.updateAttributesTransaction(transaction_id, description, date, value);
     }
 
-    public void changeAccountUsername(String account_id, String username) throws SQLException {
+    public void accountUsername(String account_id, String username) throws SQLException {
         account_repository.updateUsernameAccount(account_id, username);
     }
 
-    public void changeAccountPassword(String account_id, String password) throws SQLException {
+    public void accountPassword(String account_id, String password) throws SQLException {
         account_repository.updatePasswordAccount(account_id, password);
     }
 }
