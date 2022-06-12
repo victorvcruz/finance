@@ -9,6 +9,7 @@ import database.repository.TransactionRepository;
 import java.sql.SQLException;
 
 
+
 public class Main {
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
 
@@ -25,5 +26,7 @@ public class Main {
         ApiApliccation api = new ApiApliccation(create, change, view, account_repository, transaction_repository);
 
         api.run();
+
     }
+
 }

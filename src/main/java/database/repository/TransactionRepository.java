@@ -151,12 +151,11 @@ public class TransactionRepository {
     }
 
     public ResultSet findTransactionByAccountIdFilteredByTypeAndOthers(String account_id, String type, String category,String date_start, String date_end) throws SQLException {
-        String type_query = "";
+        String type_query;
         String category_query_formated = "";
         String date_start_query_formated= "";
         String date_end_query_formated = "";
 
-        System.out.println(type);
         if(type.equals("expenses")){
             type_query = "AND value < 0";
         } else{
@@ -174,8 +173,6 @@ public class TransactionRepository {
 
             date_start_query_formated = String.format(date_start_query, date_start.replace("/", "-"));
             date_end_query_formated = String.format(date_end_query, date_end.replace("/", "-"));
-
-
         }
 
 

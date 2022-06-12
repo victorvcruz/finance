@@ -1,7 +1,7 @@
 package database.repository;
+
 import database.PostgreClient;
 import entities.Account;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -96,10 +96,10 @@ public class AccountRepository {
 
     }
 
-    public boolean authenticateAccount(String account_id, String account_password) throws SQLException {
+    public boolean authenticateAccount(String account_username, String account_password) throws SQLException {
         String sql = "SELECT id, username, password, created_at, updated_at " +
                 "FROM account " +
-                "WHERE id = '" + account_id + "' " +
+                "WHERE username = '" + account_username + "' " +
                 "AND password = '" + account_password + "'";
 
         return postgresql.runSqlToSelect(sql).next();
@@ -124,5 +124,8 @@ public class AccountRepository {
 
         return account;
     }
+
+
+
 
 }

@@ -1,5 +1,7 @@
 package controller;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import entities.Account;
 import entities.Category;
 import entities.Transaction;
@@ -8,6 +10,9 @@ import database.repository.CategoryRepository;
 import database.repository.TransactionRepository;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.UUID;
 
 public class Create {
@@ -23,17 +28,28 @@ public class Create {
 
     }
 
-    public void createAccount(String username, String password) throws SQLException {
+    public void account(String username, String password) throws SQLException {
         Account account = new Account(username, password);
         if(!account_repository.existsAccountByUsername(username)){
             account_repository.InsertAccount(account);
         }
     }
 
-    public Transaction createIncome(String account_id, String password, String description, String category_name, String date, double value) throws SQLException {
-        if(!account_repository.authenticateAccount(account_id, password)){
-            return null;
-        }
+    public String token(String username) throws SQLException {
+
+        String id = account_repository.getAccountIdByUsername(username);
+        LocalDateTime localDate = LocalDateTime.now().plusHours(1);
+        Date dateExpirateAt = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
+        Algorithm algorithm = Algorithm.HMAC256("secret");
+
+        return JWT.create()
+                .withIssuer(id)
+                .withExpiresAt(dateExpirateAt)
+                .sign(algorithm);
+    }
+
+
+    public Transaction income(String account_id, String description, String category_name, String date, double value) throws SQLException {
 
         Account account = account_repository.findById(account_id);
 
