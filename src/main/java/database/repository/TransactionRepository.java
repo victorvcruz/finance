@@ -62,7 +62,8 @@ public class TransactionRepository {
                 "value = '" + value + "', " +
                 "date = to_timestamp('" + date + "', 'YYYY-MM-DD'), " +
                 "updated_at = '" + update_at + "' " +
-                "where id = '" + transaction_id + "'";
+                "where id = '" + transaction_id + "' " +
+                "AND canceled = false";
 
         postgresql.runSql(sql);
     }
@@ -70,7 +71,8 @@ public class TransactionRepository {
     public ResultSet findTransactionById(String transaction_id) throws SQLException {
         String sql = "SELECT id, account_id, category_id, description, value, date, canceled, created_at, updated_at " +
                 "FROM transaction " +
-                "WHERE id = '" + transaction_id + "'";
+                "WHERE id = '" + transaction_id + "' " +
+                "AND canceled = false";
 
         return postgresql.runSqlToSelect(sql);
     }
