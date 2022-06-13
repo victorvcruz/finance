@@ -4,7 +4,7 @@ public class ErrorNotFound {
 
     private String message;
     public ErrorNotFound(){
-        this.message = "Id not found";
+        this.message = "Transactions id not found";
     }
 
 }

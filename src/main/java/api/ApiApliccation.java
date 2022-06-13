@@ -1,6 +1,9 @@
 package api;
 
 import api.request.*;
+import api.request.Exceptions.ExceptionDateInvalid;
+import api.request.Exceptions.ExceptionTokenUnauthorized;
+import api.request.Exceptions.ExceptionTypeInvalid;
 import api.response.*;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -80,36 +83,39 @@ public class ApiApliccation {
             response.type("application/json");
             TransactionsCreateRequest transaction_request = new Gson().fromJson(request.body(), TransactionsCreateRequest.class);
 
-            if(!this.tokenIsAuthorized(token)){
+            try {
+                String account_id = this.accountIdByToken(token);
+                this.dateIsValid(transaction_request.getDate());
+
+                Transaction transaction = create.income(account_id, transaction_request.getDescription(), transaction_request.getCategory_name(), transaction_request.getDate(), transaction_request.getValue());
+                return Convert.json().toJson(transaction);
+
+            } catch (ExceptionTokenUnauthorized except){
                 response.status(HTTP_UNAUTHORIZED);
                 return Convert.json().toJson(new ErrorInvalidToken());
-            }
-
-            if(!this.dateIsValid(transaction_request.getDate())){
+            } catch (ExceptionDateInvalid except){
                 response.status(HTTP_BAD_REQUEST);
                 return Convert.json().toJson(new ErrorInvalidDate());
             }
 
-            String account_id = this.accountIdByToken(token);
 
-
-            Transaction transaction = create.income(account_id, transaction_request.getDescription(), transaction_request.getCategory_name(), transaction_request.getDate(), transaction_request.getValue());
-            return Convert.json().toJson(transaction);
         });
 
         get("/accounts", (request, response) -> {
             String token = request.headers("token");;
 
-            if(!this.tokenIsAuthorized(token)){
+            try{
+                String account_id = this.accountIdByToken(token);
+
+                Account account = account_repository.findById(account_id);
+                account.setBalance(view.viewBalanceOfAccountById(account_id));
+                return Convert.json().toJson(account);
+
+            } catch (ExceptionTokenUnauthorized expect){
                 response.status(HTTP_UNAUTHORIZED);
                 return Convert.json().toJson(new ErrorInvalidToken());
             }
 
-            String account_id = this.accountIdByToken(token);
-
-            Account account = account_repository.findById(account_id);
-            account.setBalance(view.viewBalanceOfAccountById(account_id));
-            return Convert.json().toJson(account);
         });
 
         get("/accounts/transactions", (request, response) -> {
@@ -120,107 +126,105 @@ public class ApiApliccation {
             String date_start = request.queryParams("date_start");
             String date_end = request.queryParams("date_end");
 
-            if(!this.tokenIsAuthorized(token)){
-                response.status(HTTP_UNAUTHORIZED);
-                return Convert.json().toJson(new ErrorInvalidToken());
-            }
+            try{
+                String account_id = this.accountIdByToken(token);
 
-            String account_id = this.accountIdByToken(token);
-
-            if(type != null){
-                if(!this.typeIsValid(type)){
-                    response.status(HTTP_BAD_REQUEST);
-                    return Convert.json().toJson(new ErrorInvalidType());
-                }
-            }
-
-            if(date_start != null & date_end == null){
-                response.status(HTTP_BAD_REQUEST);
-                return Convert.json().toJson(new ErrorNotFoundDateEnd());
-            }
-
-            if(date_start == null & date_end != null){
-                response.status(HTTP_BAD_REQUEST);
-                return Convert.json().toJson(new ErrorNotFoundDateStart());
-            }
-
-            if(date_start != null & date_end != null){
-
-                if(!this.dateIsValid(date_start)){
-                    response.status(HTTP_BAD_REQUEST);
-                    return Convert.json().toJson(new ErrorInvalidDate());
-                }
-                if(!this.dateIsValid(date_end)){
-                    response.status(HTTP_BAD_REQUEST);
-                    return Convert.json().toJson(new ErrorInvalidDate());
+                if(type != null) {
+                    this.typeIsValid(type);
                 }
 
-            }
+                if(date_start != null & date_end == null){
+                    response.status(HTTP_BAD_REQUEST);
+                    return Convert.json().toJson(new ErrorNotFoundDateEnd());
+                }
 
-            if(type != null){
+                if(date_start == null & date_end != null){
+                    response.status(HTTP_BAD_REQUEST);
+                    return Convert.json().toJson(new ErrorNotFoundDateStart());
+                }
+
+                if(date_start != null & date_end != null){
+                    this.dateIsValid(date_start);
+                    this.dateIsValid(date_end);
+                }
+
+                if(type != null){
+                    if(date_start != null & date_end != null & category != null){
+                        return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, type, category,
+                                date_start, date_end);
+                    }
+
+                    if(date_start != null & date_end != null){
+                        return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, type, "",
+                                date_start, date_end);
+                    }
+
+                    if(category != null){
+                        return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, type, category,
+                                "", "");
+                    }
+
+                    return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, type, "",
+                            "", "");
+                }
+
                 if(date_start != null & date_end != null & category != null){
-                    return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, type, category,
+                    return view.transactionsOfAccountByIdFilteredByCategoryAndDate(account_id, category,
                             date_start, date_end);
                 }
 
                 if(date_start != null & date_end != null){
-                    return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, type, "",
-                            date_start, date_end);
+                    return view.transactionsOfAccountByFilteredByDate(account_id, date_start, date_end);
                 }
 
                 if(category != null){
-                    return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, type, category,
-                            "", "");
+                    return view.transactionsOfAccountByIdFilteredByCategory(account_id, category);
                 }
 
-                return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, type, "",
-                        "", "");
+                return view.transactionsOfAccountById(account_id);
+
+            } catch (ExceptionTokenUnauthorized expect){
+                response.status(HTTP_UNAUTHORIZED);
+                return Convert.json().toJson(new ErrorInvalidToken());
+            } catch (ExceptionTypeInvalid expect){
+                response.status(HTTP_BAD_REQUEST);
+                return Convert.json().toJson(new ErrorInvalidType());
+            } catch (ExceptionDateInvalid expect){
+                response.status(HTTP_BAD_REQUEST);
+                return Convert.json().toJson(new ErrorInvalidDate());
             }
 
-            if(date_start != null & date_end != null & category != null){
-                return view.transactionsOfAccountByIdFilteredByCategoryAndDate(account_id, category,
-                        date_start, date_end);
-            }
-
-            if(date_start != null & date_end != null){
-                return view.transactionsOfAccountByFilteredByDate(account_id, date_start, date_end);
-            }
-
-            if(category != null){
-                return view.transactionsOfAccountByIdFilteredByCategory(account_id, category);
-            }
-
-            return view.transactionsOfAccountById(account_id);
         });
 
         put("/accounts", (request, response) -> {
             String token = request.headers("token");
 
-
             response.type("application/json");
             AccountCreateRequest account_request = new Gson().fromJson(request.body(), AccountCreateRequest.class);
 
-            if(!this.tokenIsAuthorized(token)){
+            try{
+                String account_id = this.accountIdByToken(token);
+
+                if(account_request.getUsername() != null) {
+                    if(!account_repository.existsAccountByUsername(account_request.getUsername())) {
+                        change.accountUsername(account_id, account_request.getUsername());
+                    } else{
+                        response.status(HTTP_CONFLICT);
+                        return Convert.json().toJson(new ErrorConflict());
+                    }
+                }
+                if(account_request.getPassword() != null) {
+                    change.accountPassword(account_id, account_request.getPassword());
+                }
+                Account account = account_repository.findById(account_id);
+                account.setBalance(account_repository.getAccountBalance(account_id));
+                return Convert.json().toJson(account);
+
+            } catch (ExceptionTokenUnauthorized expect){
                 response.status(HTTP_UNAUTHORIZED);
                 return Convert.json().toJson(new ErrorInvalidToken());
             }
 
-            String account_id = this.accountIdByToken(token);
-
-            if(account_request.getUsername() != null) {
-                if(!account_repository.existsAccountByUsername(account_request.getUsername())) {
-                    change.accountUsername(account_id, account_request.getUsername());
-                } else{
-                    response.status(HTTP_CONFLICT);
-                    return Convert.json().toJson(new ErrorConflict());
-                }
-            }
-            if(account_request.getPassword() != null) {
-                change.accountPassword(account_id, account_request.getPassword());
-            }
-            Account account = account_repository.findById(account_id);
-            account.setBalance(account_repository.getAccountBalance(account_id));
-            return Convert.json().toJson(account);
         });
 
         put("/transactions", (request, response) -> {
@@ -229,19 +233,25 @@ public class ApiApliccation {
             response.type("application/json");
             TransactionsChangeRequest transaction_request = new Gson().fromJson(request.body(), TransactionsChangeRequest.class);
 
-            if(!this.tokenIsAuthorized(token)){
+            try{
+                this.accountIdByToken(token);
+
+                if(!transaction_repository.existsTransactionById(transaction_request.getId())){
+                    response.status(HTTP_NOT_FOUND);
+                    return Convert.json().toJson(new ErrorNotFound());
+                }
+
+                change.transaction(transaction_request.getId(),transaction_request.getDescription(), transaction_request.getDate(), transaction_request.getValue());
+
+                return Convert.json().toJson(transaction_repository.findById(transaction_request.getId()));
+
+            } catch (ExceptionTokenUnauthorized expect){
                 response.status(HTTP_UNAUTHORIZED);
                 return Convert.json().toJson(new ErrorInvalidToken());
             }
 
-            if(!transaction_repository.existsTransactionById(transaction_request.getId())){
-                response.status(HTTP_NOT_FOUND);
-                return Convert.json().toJson(new ErrorNotFound());
-            }
 
-            change.transaction(transaction_request.getId(),transaction_request.getDescription(), transaction_request.getDate(), transaction_request.getValue());
 
-            return Convert.json().toJson(transaction_repository.findById(transaction_request.getId()));
         });
 
         delete("/transactions", (request, response) -> {
@@ -250,24 +260,35 @@ public class ApiApliccation {
             response.type("application/json");
             TransactionsCancelRequest transaction_request = new Gson().fromJson(request.body(), TransactionsCancelRequest.class);
 
-            if(!this.tokenIsAuthorized(token)){
+            try{
+                this.accountIdByToken(token);
+
+                if(!this.tokenIsAuthorized(token)){
+                    response.status(HTTP_UNAUTHORIZED);
+                    return Convert.json().toJson(new ErrorInvalidToken());
+                }
+
+                if(!transaction_repository.existsTransactionById(transaction_request.getId())){
+                    response.status(HTTP_NOT_FOUND);
+                    return Convert.json().toJson(new ErrorNotFound());
+                }
+
+                Transaction transaction = transaction_repository.findById(transaction_request.getId());
+
+                change.cancelTransaction(transaction_request.getId(), "true");
+
+                return Convert.json().toJson(transaction);
+
+            } catch (ExceptionTokenUnauthorized expect){
                 response.status(HTTP_UNAUTHORIZED);
                 return Convert.json().toJson(new ErrorInvalidToken());
             }
 
-            if(!transaction_repository.existsTransactionById(transaction_request.getId())){
-                response.status(HTTP_NOT_FOUND);
-                return Convert.json().toJson(new ErrorNotFound());
-            }
-
-            change.cancelTransaction(transaction_request.getId(), "true");
-
-            return Convert.json().toJson(transaction_repository.findById(transaction_request.getId()));
         });
 
     }
 
-    public boolean tokenIsAuthorized(String token){
+    public boolean tokenIsAuthorized(String token) throws ExceptionTokenUnauthorized {
         try {
             Algorithm algorithm = Algorithm.HMAC256("secret");
             JWTVerifier verifier = JWT.require(algorithm)
@@ -276,31 +297,40 @@ public class ApiApliccation {
             return true;
 
         } catch (JWTVerificationException exception){
-            return false;
+            throw new ExceptionTokenUnauthorized();
         }
     }
 
-    public String accountIdByToken(String token){
-        Algorithm algorithm = Algorithm.HMAC256("secret");
-        JWTVerifier verifier = JWT.require(algorithm)
-                .build();
-        DecodedJWT jwt = verifier.verify(token);
-        return jwt.getIssuer();
+    public String accountIdByToken(String token) throws ExceptionTokenUnauthorized {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256("secret");
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .build();
+            DecodedJWT jwt = verifier.verify(token);
+            return jwt.getIssuer();
+        } catch (JWTVerificationException exception){
+            throw new ExceptionTokenUnauthorized();
+        }
     }
 
-    public boolean dateIsValid(String dateStr) {
+    public boolean dateIsValid(String dateStr) throws ExceptionDateInvalid {
         DateFormat sdf = new SimpleDateFormat("yyyy/dd/MM");
         sdf.setLenient(false);
         try {
             sdf.parse(dateStr);
         } catch (ParseException e) {
-            return false;
+             throw new ExceptionDateInvalid();
         }
         return true;
     }
 
-    public boolean typeIsValid(String type){
-        return type.equals("incomes") || type.equals("expenses");
+    public boolean typeIsValid(String type) throws ExceptionTypeInvalid {
+         if(!(type.equals("incomes") || type.equals("expenses"))){
+             throw new ExceptionTypeInvalid();
+         } else{
+             return true;
+         }
+
     }
 
 
