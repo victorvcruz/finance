@@ -79,16 +79,9 @@ Headers: "token": "eyJ0eXAiOiJKV1QiLCJ_example"
 
 Headers: "token": "eyJ0eXAiOiJKV1QiLCJ_example"
 
-```
-{
-	"type": "incomes",
-	"category": "Salary",
-	"date_start": "2022/01/01",
-	"date_end": "2022/06/01"
-}
-```
+query parameters:
 
-the filters in json params is optional
+`http://localhost:4567/accounts/transactions?type=incomes&category=Salary&date_start=2022/02/01&date_end=2022/04/01`
 <br />
 <br />
 <br />
