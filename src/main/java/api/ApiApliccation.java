@@ -115,6 +115,11 @@ public class ApiApliccation {
         get("/accounts/transactions", (request, response) -> {
             String token = request.headers("token");
 
+            String type = request.queryParams("type");
+            String category = request.queryParams("category");
+            String date_start = request.queryParams("date_start");
+            String date_end = request.queryParams("date_end");
+
             if(!this.tokenIsAuthorized(token)){
                 response.status(HTTP_UNAUTHORIZED);
                 return Convert.json().toJson(new ErrorInvalidToken());
@@ -122,76 +127,68 @@ public class ApiApliccation {
 
             String account_id = this.accountIdByToken(token);
 
-            response.type("application/json");
-            TransactionsGetRequest transaction_request = new Gson().fromJson(request.body(), TransactionsGetRequest.class);
-            System.out.println(transaction_request.getCategory());
-
-            if(transaction_request.getType() != null){
-                if(!this.typeIsValid(transaction_request.getType())){
+            if(type != null){
+                if(!this.typeIsValid(type)){
                     response.status(HTTP_BAD_REQUEST);
                     return Convert.json().toJson(new ErrorInvalidType());
                 }
             }
 
-            if(transaction_request.getDate_start() != null & transaction_request.getDate_end() == null){
+            if(date_start != null & date_end == null){
                 response.status(HTTP_BAD_REQUEST);
                 return Convert.json().toJson(new ErrorNotFoundDateEnd());
             }
 
-            if(transaction_request.getDate_start() == null & transaction_request.getDate_end() != null){
+            if(date_start == null & date_end != null){
                 response.status(HTTP_BAD_REQUEST);
                 return Convert.json().toJson(new ErrorNotFoundDateStart());
             }
 
-            if(transaction_request.getDate_start() != null & transaction_request.getDate_end() != null){
+            if(date_start != null & date_end != null){
 
-                if(!this.dateIsValid(transaction_request.getDate_start())){
+                if(!this.dateIsValid(date_start)){
                     response.status(HTTP_BAD_REQUEST);
                     return Convert.json().toJson(new ErrorInvalidDate());
                 }
-                if(!this.dateIsValid(transaction_request.getDate_end())){
+                if(!this.dateIsValid(date_end)){
                     response.status(HTTP_BAD_REQUEST);
                     return Convert.json().toJson(new ErrorInvalidDate());
                 }
 
             }
 
-
-            if(transaction_request.getType() != null){
-                if(transaction_request.getDate_start() != null & transaction_request.getDate_end() != null & transaction_request.getCategory() != null){
-                    return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, transaction_request.getType(), transaction_request.getCategory(),
-                            transaction_request.getDate_start(), transaction_request.getDate_end());
+            if(type != null){
+                if(date_start != null & date_end != null & category != null){
+                    return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, type, category,
+                            date_start, date_end);
                 }
 
-                if(transaction_request.getDate_start() != null & transaction_request.getDate_end() != null){
-                    return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, transaction_request.getType(), "",
-                            transaction_request.getDate_start(), transaction_request.getDate_end());
+                if(date_start != null & date_end != null){
+                    return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, type, "",
+                            date_start, date_end);
                 }
 
-                if(transaction_request.getCategory() != null){
-                    return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, transaction_request.getType(), transaction_request.getCategory(),
+                if(category != null){
+                    return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, type, category,
                             "", "");
                 }
 
-                return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, transaction_request.getType(), "",
+                return view.transactionsOfAccountByFilteredByTypeAndOther(account_id, type, "",
                         "", "");
             }
 
-            if(transaction_request.getDate_start() != null & transaction_request.getDate_end() != null & transaction_request.getCategory() != null){
-                return view.transactionsOfAccountByIdFilteredByCategoryAndDate(account_id, transaction_request.getCategory(),
-                        transaction_request.getDate_start(), transaction_request.getDate_end());
+            if(date_start != null & date_end != null & category != null){
+                return view.transactionsOfAccountByIdFilteredByCategoryAndDate(account_id, category,
+                        date_start, date_end);
             }
 
-            if(transaction_request.getDate_start() != null & transaction_request.getDate_end() != null){
-                return view.transactionsOfAccountByFilteredByDate(account_id, transaction_request.getDate_start(), transaction_request.getDate_end());
+            if(date_start != null & date_end != null){
+                return view.transactionsOfAccountByFilteredByDate(account_id, date_start, date_end);
             }
 
-            if(transaction_request.getCategory() != null){
-                return view.transactionsOfAccountByIdFilteredByCategory(account_id, transaction_request.getCategory());
+            if(category != null){
+                return view.transactionsOfAccountByIdFilteredByCategory(account_id, category);
             }
-
-
-
 
             return view.transactionsOfAccountById(account_id);
         });
